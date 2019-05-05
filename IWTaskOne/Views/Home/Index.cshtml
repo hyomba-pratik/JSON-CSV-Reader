@@ -1,0 +1,68 @@
+﻿<br />
+<div class="jumbotron">
+    <h1>Read States from JSON or CSV</h1>
+</div>
+
+<div>
+    <ul class="list-unstyled list-inline">
+        <li>
+            <form action="@Url.Action("states", "api", new { type="json"})" method="get">
+                <button type="submit" class="btn btn-primary">
+                    Read JSON
+                </button>
+            </form>
+        </li>
+        <li>
+            <form action="@Url.Action("states", "api", new { type="csv"})" method="get">
+                <button type="submit" class="btn btn-primary">
+                    Read CSV
+                </button>
+            </form>
+        </li>
+        <li id="loading" class="hidden">Loading...</li>  
+    </ul>
+</div>
+<div class="row">
+    <div class="col-sm-6 hidden" id="rawWrapper">
+        <h4>Raw Preview</h4>
+        <div></div>
+    </div>
+    <div class="col-sm-6 hidden" id="tabularWrapper">
+        <h4>Tabular View</h4>
+        <div>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Abbreviation</th>  
+                    </tr>
+                </thead>
+                <tbody></tbody>   
+            </table>
+        </div>
+    </div>
+</div>
+@section scripts {
+    <script>
+        $("form").on("submit", function (e) {
+            e.preventDefault();
+            $("#loading").removeClass("hidden");
+            var form = $(this);
+            $.ajax({
+                url: form.attr("action"),
+                type: form.attr("method"),
+                success: function (resp) {
+                    $("#rawWrapper").removeClass("hidden").find("div").html("<pre>" + JSON.stringify(resp) + "</code>");
+                    var tablerows = "";
+                    $.each(resp, function (index, data) {
+                        tablerows += ("<tr><td>" + data.Title + "</td><td>" + data.Abbreviation + "</td></tr>")
+                    });
+
+                    $("#tabularWrapper").removeClass("hidden").find("table tbody").html(tablerows);
+
+                    $("#loading").addClass("hidden");
+                }
+            })
+        })
+    </script>
+}
